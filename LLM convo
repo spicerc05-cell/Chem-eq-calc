@@ -1,0 +1,860 @@
+### Question: i am using this code in replacemnt of chempy to be compatible with drafter,
+import re
+
+molecular_dictionary ={
+  "He":	4.002602,
+  "Li":	6.941,
+  "Be":	9.012182,
+  "Ne":	20.1797,
+  "Na":	22.989768,
+  "Mg":	24.3050,
+  "Al":	26.981539,
+  "Si":	28.0855,
+  "Cl":	35.4527,
+  "Ar":	39.948,
+  "K":	39.0983,
+  "Ca":	40.078,
+  "Sc":	44.955910,
+  "Ti":	47.88,
+  "V":	50.9415,
+  "Cr":	51.9961,
+  "Mn":	54.93805,
+  "Fe":	55.847,
+  "Co":	58.93320,
+  "Ni":	58.6934,
+  "Cu":	63.546,
+  "Zn":	65.39,
+  "Ga":	69.723,
+  "Ge":	72.61,
+  "As":	74.92159,
+  "Se":	78.96,
+  "Br":	79.904,
+  "Kr":	83.80,
+  "Rb":	85.4678,
+  "Sr":	87.62,
+  "Y":	88.90585,
+  "Zr":	91.224,
+  "Nb":	92.90638,
+  "Mo":	95.94,
+  "Tc":	98,
+  "Ru":	101.07,
+  "Rh":	102.90550,
+  "Pd":	106.42,
+  "Ag":	107.8682,
+  "Cd":	112.411,
+  "In":	114.82,
+  "Sn":	118.710,
+  "Sb":	121.757,
+  "Te":	127.60,
+  "Xe":	131.29,
+  "Cs":	132.90543,
+  "Ba":	137.327,
+  "La":	138.9055,
+  "Ce":	140.115,
+  "Pr":	140.90765,
+  "Nd":	144.24,
+  "Pm":	145,
+  "Sm":	150.36,
+  "Eu":	151.965,
+  "Gd":	157.25,
+  "Tb":	158.92534,
+  "Dy":	162.50,
+  "Ho":	164.93032,
+  "Er":	167.26,
+  "Tm":	168.93421,
+  "Yb":	173.04,
+  "Lu":	174.967,
+  "Hf":	178.49,
+  "Ta":	180.9479,
+  "W":	183.85,
+  "Re":	186.207,
+  "Os":	190.2,
+  "Ir":	192.22,
+  "Pt":	195.08,
+  "Au":	196.96654,
+  "Hg":	200.59,
+  "Tl":	204.3833,
+  "Pb":	207.2,
+  "Bi":	208.98037,
+  "Po":	209,
+  "At":	210,
+  "Rn":	222,
+  "Fr":	223,
+  "Ra":	226.0254,
+  "Ac":	227,
+  "Th":	232.0381,
+  "Pa":	213.0359,
+  "U":	238.0289,
+  "Np":	237.0482,
+  "Pu":	244,
+  "Am":	243,
+  "Cm":	247,
+  "Bk":	247,
+  "Cf":	251,
+  "Es":	252,
+  "Fm":	257,
+  "Md":	258,
+  "No":	259,
+  "Lr":	260,
+  "Rf":	261,
+  "Db":	262,
+  "Sg":	263,
+  "Bh":	262,
+  "Hs":	265,
+  "Mt":	266,
+  "N": 14.00674,
+  "B": 10.811,
+  "C": 12.011,
+  "O": 15.9994,
+  "F": 18.9984032,
+  "I": 126.90447,
+  "S": 32.066,
+  "P": 30.973762,
+  "H":	1.00794,
+}
+
+
+print ('\nPlease Print Molecular Formulas with correct cases e.g CH3, NaCl\n')
+
+
+class Compound:
+    def __init__(self):
+        self.molecular_weight= 0
+        self.formula = raw_input('Enter compound iupac name: ')
+        self.stociometric = input('Enter stociometric value of compound in equation: ')
+        self.mw_calc()
+    def mw_calc(self):
+        alterable_formula = self.formula
+        
+        #### Seperate all bracketed groups from formula
+        RegExValue = re.compile(r"(\()(\w*)(\))(\d*)",re.I)
+        myMatches = RegExValue.findall(self.formula)
+
+        #### Add bracketed groups into formula again, removing original entries
+        for i in myMatches:
+            for j in range(int(i[3])):
+                alterable_formula = alterable_formula + i[1]
+            alterable_formula = alterable_formula.replace(i[0] + i[1] + i[2] + i[3], '')
+        formula_list = list(alterable_formula)
+
+        #### Match letters to corresponding dictionary values
+        #### loop through each letter and add value to answer variable
+        for i,j in enumerate(formula_list):
+            if j.isdigit() == True:
+                for m in range(int(j)):
+                    self.molecular_weight+= molecular_dictionary[formula_list[i-1]]
+                
+            else:
+                if j in molecular_dictionary:
+                    self.molecular_weight+= molecular_dictionary[j]
+
+
+class Reactant(Compound):
+    def __init__(self):
+        Compound.__init__(self)
+        self.weight = input('Enter amount of compound used in grams: ')
+        self.moles = self.weight / self.molecular_weight
+
+        
+class Product(Compound):
+    def __init__(self):
+        Compound.__init__(self)
+    def calculation(self, name1, name2):
+        self.outcome1 = (name1.weight * (1/name1.molecular_weight) * (name1.stociometric / self.stociometric) * (self.molecular_weight))
+        self.outcome2 = (name2.weight * (1/name2.molecular_weight) * (name2.stociometric / self.stociometric) * (self.molecular_weight))
+        if self.outcome1 < self.outcome2:
+            print (name1.formula + ' is the limiting reagent')
+            self.theoretical_yield = (name1.weight * (1/name1.molecular_weight) * (self.stociometric/name1.stociometric) * (self.molecular_weight))
+            print ('Theoretical Yield = ' + str(self.theoretical_yield) + 'g ' + self.formula)
+        elif self.outcome1 > self.outcome2:
+            print (name2.formula + ' is the limiting reagent')
+            self.theoretical_yield = (name2.weight * (1/name2.molecular_weight) * (self.stociometric/name2.stociometric) * (self.molecular_weight))
+            print ('Theoretical Yield = ' + str(self.theoretical_yield) + 'g ' + self.formula)
+
+        else:
+            print ('Reactants imbalanced')
+
+        
+def main():
+    print ('Input Data for Reactant 1\n')
+    compound1 = Reactant()
+    print ('\nInput Data for Reactant 2\n')
+    compound2 = Reactant()
+    print ('\nInput Data for Product\n')
+    product = Product()
+    product.calculation(compound1, compound2)
+
+if __name__ == "__main__":
+    main()
+
+what should i do to fix this?
+
+Answer: You can use this code as the foundation, but I would change how it gets input and how it calculates the results before connecting it to Drafter.
+
+Your current code was designed to run in the terminal. Drafter works differently: the user enters information through webpage inputs, and your Python functions process the values those inputs provide. You should separate the chemistry calculations from the webpage.
+
+There are five main things to fix.
+1. Fix the formula parser
+Your current mw_calc() has a few problems:
+- It treats each letter as a separate element, so it cannot correctly read two-letter symbols like Na, Cl, or Ca.
+- It does not correctly handle subscripts with multiple digits, such as the 12 in C12H22O11.
+- Its parentheses code does not reliably handle formulas such as Ca(OH)2.
+- It silently ignores elements that aren't in your dictionary instead of reporting an error.
+For your first version, I recommend supporting element symbols and numerical subscripts, but not parentheses yet. That is a reasonable scope for a CS1 project.
+2. Change your classes so they don't ask the user for input
+These lines are a problem for Drafter:
+self.formula = raw_input('Enter compound iupac name: ')self.stociometric = input('Enter stociometric value...')
+
+raw_input() is Python 2 syntax, and input() is not how you collect information from a Drafter webpage.
+
+Instead, have your classes receive information as arguments. Drafter will eventually pass the user's entered values to your calculation functions.
+3. Add a reaction-balance check
+Your original code does not actually verify whether the equation is balanced. Comparing theoretical yields is not the same thing as checking whether the equation is balanced.
+
+You need to count the atoms on each side of the equation.
+4. Replace your limiting-reactant calculation
+Your original Product.calculation() compares possible product yields. You can make this easier to understand by comparing the available moles divided by each reactant's coefficient.
+
+The reactant with the smallest result is the limiting reactant.
+5. Remove the terminal main() function
+You won't need this part in your Drafter application:
+def main():    ...if __name__ == "__main__":    main()
+
+Instead, your Drafter routes will collect the information and call your calculation functions.
+What I recommend you do next
+Don't try to rewrite the entire application at once. Work in this order:
+1. Get parse_formula() working.
+2. Get calculate_molar_mass() working.
+3. Get the Compound, Reactant, and Product classes working.
+4. Test the balance checker.
+5. Test the limiting-reactant and theoretical-yield calculations.
+6. Connect those functions to your Drafter routes.
+One scope decision: I recommend starting with two reactants and one product, as your original code does. Once that works, you can expand it to support additional reactants or products.
+
+The next useful step would be to take your existing code and turn it into one complete, testable Python calculation module that you can then connect to Drafter.
+
+Question: I am thinking about seperating this code from my main drafter code, how should i go about that?
+
+Answer: Oh, got it! You're keeping this code as a separate chemistry calculation module/database that your main Drafter application will import.
+
+That changes how we should organize it. You do not need a main() function or terminal input() statements in this file.
+
+I recommend organizing your project into two Python files:
+Your project
+
+main.py
+Drafter application
+
+Pages, buttons, user inputs, State, and displaying results.
+chemistry.py
+Calculation module
+
+Molecular-weight dictionary, formula parser, dataclasses, and chemistry calculations.
+
+
+What should stay in chemistry.py?
+Keep these parts:
+1. molecular_dictionary
+2. parse_formula()
+3. calculate_molar_mass()
+4. Compound class
+5. Reactant class
+6. Product class
+7. get_total_atoms()
+8. is_balanced()
+9. Limiting-reactant and theoretical-yield functions (when we add them)
+Remove these parts:
+- print() instructions asking the user for formulas.
+- input() and raw_input() statements.
+- The terminal main() function.
+- if __name__ == "__main__": main().
+How will the main application use it?
+At the top of main.py, you can import the functions and classes:
+from chemistry import (    Reactant,    Product,    is_balanced,    calculate_molar_mass)
+
+
+
+Then your Drafter application can create objects using the information entered on the webpage:
+reactant1 = Reactant("H2", 2, 4.0)reactant2 = Reactant("O2", 1, 32.0)product = Product("H2O", 2)
+
+
+
+One important distinction: Your dictionary is the atomic-weight database, while your functions and classes are the calculation tools. Together, they make your chemistry module.
+
+I would keep the two files separate. It makes your project easier to debug and keeps the Drafter interface separate from the chemistry calculations.
+
+Question: I tried to run the main drafter file and it says there is no module named chemistry.
+
+Answer: That error means Python cannot find your chemistry.py file when your main Drafter application tries to import it.
+
+It is usually a file location or naming issue, not a problem with your chemistry code.
+1. Check your file organization
+Both files should be in the same project folder:
+Your Drafter project folder
+
+main.py
+
+Your Drafter application
+
+chemistry.py
+
+Your chemistry calculations
+
+
+
+2. Check the filename
+Make sure your file is named exactly:
+
+chemistry.py
+
+Not:
+- chemistry.py.txt
+- Chemistry.py
+- chemistry (1).py
+Capitalization matters in many Python environments.
+3. Check your import statement
+At the top of main.py, use:
+from chemistry import (    Reactant,    Product,    is_balanced,    calculate_molar_mass)
+
+
+
+4. Restart Drafter
+After saving both files, stop your Drafter server and start it again.
+
+Question: so what should i do to make sure the test is working, because after I ran it i came to an error
+
+Answer: Let's test this one piece at a time rather than trying to run the entire Drafter app. That way, we'll know exactly which function is failing.
+Step 1: Test your chemistry functions separately
+Open Chemistry.py in Thonny. At the very bottom of the file, temporarily add this test code:
+# TEST CODEreactants = [    Reactant("H2", 2, 4.0),    Reactant("O2", 1, 32.0)]products = [    Product("H2O", 2)]print("Balanced:", is_balanced(reactants, products))limiting = find_limiting_reactant(reactants)print("Limiting reactant:", limiting.formula)yield_amount = calculate_theoretical_yield(limiting, products[0])print("Theoretical yield:", yield_amount)
+
+This tests the balanced equation:
+\[
+2H_2 + O_2 \rightarrow 2H_2O
+\]
+
+Step 2: Run Chemistry.py
+Click the green Run button in Thonny.
+Expected results
+You should see approximately:
+Balanced: True
+Limiting reactant: H2
+Theoretical yield: 35.73
+
+Why? You have 4 grams of hydrogen and 32 grams of oxygen. Hydrogen is the limiting reactant, and it can produce approximately 35.73 grams of water.
+Step 3: Test an unbalanced equation
+Change the product coefficient from 2 to 1:
+products = [    Product("H2O", 1)]
+
+Run it again. You should see:
+Balanced: False
+
+The limiting-reactant and yield functions will still run in this temporary test, but your actual Drafter application should not calculate a yield when the equation is unbalanced.
+
+Question: this test worked
+
+Answer: Great! That confirms two important things:
+1. Your chemistry calculations work correctly.
+2. Main_Drafter.py can successfully import and use the functions from Chemistry.py.
+Now let's test the actual Drafter interface so we know users can enter information and get the correct results.
+Next step: Connect the calculator to Drafter
+I recommend building these features in this order:
+1. Equation input: Let the user enter reactants and products.
+2. Starting mass inputs: Let the user enter the mass of each reactant in grams.
+3. Balance button: Check whether the equation is balanced.
+4. Calculation: If balanced, calculate the limiting reactant and theoretical yield.
+5. Actual yield input: Let the user enter the experimentally measured yield.
+6. Percent yield: Calculate and display the percent yield.
+Let's start with the next step.
+
+Question: and would these go into the main.py code?
+
+Answer: Yes! The equation input fields, State variables, and Drafter interface code should go in your Main_Drafter.py file.
+
+Keep your project organized into two files:
+Chemistry.py
+Calculation logic
+
+- Reactant and Product dataclasses
+- Formula parser
+- Molecular mass calculations
+- is_balanced()
+- find_limiting_reactant()
+- calculate_theoretical_yield()
+  
+  Main_Drafter.py
+  Website
+- State dataclass
+- TextBox inputs
+- Buttons
+- Pages and routes
+- Error messages
+- Displaying calculation results
+- Imports from Chemistry.py
+
+Question: what are the drafter routes and page functions i should make again?
+
+Answer: For your Chemical Reaction Calculator, I recommend making 8 Drafter routes. This gives you enough pages and functionality without making the project unnecessarily complicated.
+
+Here is the structure I'd use in Main_Drafter.py:
+Your 8 routes and page functions
+Route / Function	Purpose
+home()	Welcome page explaining what the calculator does.
+calculator()	Page where users enter reactants, products, coefficients, and starting masses.
+calculate()	Processes the input, checks whether the equation is balanced, and calculates results.
+results()	Displays the limiting reactant, theoretical yield, actual yield, and percent yield.
+reaction_details()	Explains the calculations and shows the reaction's atom counts.
+examples()	Shows example chemical reactions users can try.
+help_page()	Explains how to use the calculator and enter chemical formulas.
+about()	Explains the purpose of your application.
+
+What each page should contain
+1. Home page
+
+webby.tools
+
+- Application title
+- Short description
+- Button to start calculating
+  
+  2. Calculator page
+- Reactant formula inputs
+- Product formula inputs
+- Stoichiometric coefficient inputs
+- Starting mass inputs
+- Button to calculate
+  
+  3. Calculate route
+  
+  This is the processing function. It:
+- Checks that inputs are valid.
+- Checks whether the equation is balanced.
+- Finds the limiting reactant.
+- Calculates theoretical yield.
+- Sends the user to the results page.
+  
+  4. Results page
+- Balanced or unbalanced message
+- Limiting reactant
+- Theoretical yield
+- Actual yield input
+- Percent yield
+  
+  5. Reaction details page
+- Displays the atom counts on both sides.
+- Explains why the reaction is balanced or unbalanced.
+- Shows how the limiting reactant was selected.
+  
+  6. Examples page
+- Sample balanced reactions
+- Example reactant masses
+- Example theoretical yields
+  
+  7. Help page
+- How to enter formulas
+- What coefficients mean
+- Difference between theoretical and actual yield
+  
+  8. About page
+- Project purpose
+- What the calculator can do
+- Limitations of the calculator
+
+How to organize the routes
+Your file could have this general structure:
+# Imports# State dataclass# Home route@routedef home(state: State):    ...# Calculator route@routedef calculator(state: State):    ...# Calculate route@routedef calculate(state: State):    ...# Results route@routedef results(state: State):    ...# Reaction details route@routedef reaction_details(state: State):    ...# Examples route@routedef examples(state: State):    ...# Help route@route
+
+The ... represents code you will fill in; these are not complete Drafter functions yet.
+One important project requirement
+You mentioned that your assignment requires:
+- At least 7 routes.
+- At least 5 pages.
+- A State dataclass with at least 4 fields.
+- At least one list or dictionary containing instances of another dataclass.
+- At least one meaningful loop.
+These 8 routes give you a good starting point. You do not need a history page. You could use a list of Reaction dataclass instances to store calculation results during the session and display them on your Results page.
+
+My recommendation: Build home(), calculator(), calculate(), and results() first. Those four functions create the core working application. Then add the remaining pages to satisfy your project requirements and improve the user experience.
+
+Question: im looking at the drafter and the calculator page has "coefficient" showing up on the same line as H2 instead of on 2, same thing for the starting mass in grams being beside the two instead of the 4. this happens for every reactant and coefficient
+
+Answer: That sounds like a layout issue in the calculator() page, not a problem with your chemistry calculations. Drafter is likely displaying the label and input in the same row because they're being added as separate components without a line break or grouping.
+The easiest fix is to put each label and its input on separate lines.
+
+For example, if your current code looks something like this:
+Text("Reactant 1:"),TextBox("reactant_1_formula", state.reactant_1_formula),Text("Coefficient:"),TextBox("reactant_1_coefficient", state.reactant_1_coefficient),Text("Starting mass in grams:"),TextBox("reactant_1_mass", state.reactant_1_mass),
+
+Change it to:
+Text("Reactant 1 Formula (example: H2):"),TextBox("reactant_1_formula", state.reactant_1_formula),Text("Coefficient:"),TextBox("reactant_1_coefficient", state.reactant_1_coefficient),Text("Starting Mass (grams):"),TextBox("reactant_1_mass", state.reactant_1_mass),
+
+If that still puts them on the same line, we should use Drafter's layout components to group each label and input vertically.
+
+Question: can you do a scan and tell me which elements this database is missing?
+  "He": 4.002602,
+    "Li": 6.941,
+    "Be": 9.012182,
+    "Ne": 20.1797,
+    "Na": 22.989768,
+    "Mg": 24.3050,
+    "Al": 26.981539,
+    "Si": 28.0855,
+    "Cl": 35.4527,
+    "Ar": 39.948,
+    "K": 39.0983,
+    "Ca": 40.078,
+    "Sc": 44.955910,
+    "Ti": 47.88,
+    "V": 50.9415,
+    "Cr": 51.9961,
+    "Mn": 54.93805,
+    "Fe": 55.847,
+    "Co": 58.93320,
+    "Ni": 58.6934,
+    "Cu": 63.546,
+    "Zn": 65.39,
+    "Ga": 69.723,
+    "Ge": 72.61,
+    "As": 74.92159,
+    "Se": 78.96,
+    "Br": 79.904,
+    "Kr": 83.80,
+    "Rb": 85.4678,
+    "Sr": 87.62,
+    "Y": 88.90585,
+    "Zr": 91.224,
+    "Nb": 92.90638,
+    "Mo": 95.94,
+    "Tc": 98,
+    "Ru": 101.07,
+    "Rh": 102.90550,
+    "Pd": 106.42,
+    "Ag": 107.8682,
+    "Cd": 112.411,
+    "In": 114.82,
+    "Sn": 118.710,
+    "Sb": 121.757,
+    "Te": 127.60,
+    "Xe": 131.29,
+    "Cs": 132.90543,
+    "Ba": 137.327,
+    "La": 138.9055,
+    "Ce": 140.115,
+    "Pr": 140.90765,
+    "Nd": 144.24,
+    "Pm": 145,
+    "Sm": 150.36,
+    "Eu": 151.965,
+    "Gd": 157.25,
+    "Tb": 158.92534,
+    "Dy": 162.50,
+    "Ho": 164.93032,
+    "Er": 167.26,
+    "Tm": 168.93421,
+    "Yb": 173.04,
+    "Lu": 174.967,
+    "Hf": 178.49,
+    "Ta": 180.9479,
+    "W": 183.85,
+    "Re": 186.207,
+    "Os": 190.2,
+    "Ir": 192.22,
+    "Pt": 195.08,
+    "Au": 196.96654,
+    "Hg": 200.59,
+    "Tl": 204.3833,
+    "Pb": 207.2,
+    "Bi": 208.98037,
+    "Po": 209,
+    "At": 210,
+    "Rn": 222,
+    "Fr": 223,
+    "Ra": 226.0254,
+    "Ac": 227,
+    "Th": 232.0381,
+    "Pa": 213.0359,
+    "U": 238.0289,
+    "Np": 237.0482,
+    "Pu": 244,
+    "Am": 243,
+    "Cm": 247,
+    "Bk": 247,
+    "Cf": 251,
+    "Es": 252,
+    "Fm": 257,
+    "Md": 258,
+    "No": 259,
+    "Lr": 260,
+    "Rf": 261,
+    "Db": 262,
+    "Sg": 263,
+    "Bh": 262,
+    "Hs": 265,
+    "Mt": 266,
+    "N": 14.00674,
+    "B": 10.811,
+    "C": 12.011,
+    "O": 15.9994,
+    "F": 18.9984032,
+    "I": 126.90447,
+    "S": 32.066,
+    "P": 30.973762,
+    "H": 1.00794,
+
+Answer: I checked your dictionary against all 118 currently recognized elements. You're only missing 9 elements — all of them are in the final row of the periodic table.
+
+Add these:
+    "Ds": 281,   # Darmstadtium    "Rg": 282,   # Roentgenium    "Cn": 285,   # Copernicium    "Nh": 286,   # Nihonium    "Fl": 289,   # Flerovium    "Mc": 290,   # Moscovium    "Lv": 293,   # Livermorium    "Ts": 294,   # Tennessine    "Og": 294,   # Oganesson
+
+118 elements covered
+ Once you add those nine, your dictionary will include every recognized element.
+
+One correction I noticed: Your Protactinium (Pa) value is incorrect:
+"Pa": 231.0359,
+You currently have 213.0359.
+
+One chemistry note: The values for the newest, superheavy elements are approximate isotope mass numbers, not ordinary standard atomic weights. That's fine for a basic educational calculator, since those elements are unlikely to appear in typical student reactions.
+
+Question: how should i fi this error,
+Run set -euo pipefail&#x20;
+Drafter v2 deployment build&#x20;
+Repository: spicerc05-cell/Chem-eq-calc&#x20;
+Run: [https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43490732217](https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43490732217)&#x20;
+Entry file: main.py&#x20;
+Command: uvx --from drafter\\>=2\\,\\<3 drafter main.py --compile --output-directory \_site --production --additional-paths README.md --external-pages dashboard/\ Dashboard --external-pages [https://github.com/spicerc05-cell/Chem-eq-calc\\](https://github.com/spicerc05-cell/Chem-eq-calc\\) Repository&#x20;
+Installed 39 packages in 60ms&#x20;
+Traceback (most recent call last):&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/xNXm2LRApz1QQYye/bin/drafter", line 12, in \<module>&#x20;
+&#x20;   sys.exit(main())&#x20;
+&#x20;            ^^^^^^&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/xNXm2LRApz1QQYye/lib/python3.12/site-packages/drafter/cli.py", line 34, in main&#x20;
+&#x20;   run_path(system.bootstrap.path, run_name="\_\_main\_\_")&#x20;
+&#x20; File "\<frozen runpy>", line 287, in run_path&#x20;
+&#x20; File "\<frozen runpy>", line 98, in \_run_module_code&#x20;
+&#x20; File "\<frozen runpy>", line 88, in \_run_code&#x20;
+&#x20; File "main.py", line 6, in \<module>&#x20;
+&#x20;   from Chemistry import (&#x20;
+ModuleNotFoundError: No module named 'Chemistry'
+
+what should i do to create a chemistry module in github and still have the main.py use it?
+
+Answer: This error means GitHub can find and run main.py, but it cannot find the separate Chemistry module that main.py is trying to import.
+
+You don't need to install ChemPy or create a special GitHub package. You just need to upload your existing Chemistry.py file into the correct place in your repository.
+1. Create Chemistry.py in GitHub
+Your repository should have this structure:
+Chem-eq-calc/
+│
+├── main.py
+├── Chemistry.py
+├── README.md
+└── .github/
+    └── workflows/
+        └── (your workflow file)
+
+The important part is that main.py and Chemistry.py must be in the same folder.
+2. Upload your Chemistry module
+On GitHub:
+1. Open your repository: Chem-eq-calc.
+2. Click Add file.
+3. Select Create new file.
+4. Name the file exactly:
+   
+   Chemistry.py
+5. Paste the contents of your working Chemistry.py file into it.
+6. Scroll down and click Commit changes.
+If you already have Chemistry.py on your Mac, you can instead choose Upload files and upload that file.
+3. What goes inside Chemistry.py?
+Copy the chemistry-related code from your previous project into this file, including:
+- molecular_dictionary
+- parse_formula()
+- calculate_molar_mass()
+- Compound
+- Reactant
+- Product
+- get_total_atoms()
+- is_balanced()
+- find_limiting_reactant()
+- calculate_theoretical_yield()
+Do not copy your Drafter routes, State dataclass, or start_server(State()) into Chemistry.py.
+4. Keep this import in main.py
+Your existing import should work:
+from Chemistry import (    Reactant,    Product,    is_balanced,    find_limiting_reactant,    calculate_theoretical_yield,    get_total_atoms)
+
+Make sure the capitalization matches exactly. GitHub runs on Linux, where Chemistry.py and chemistry.py are different filenames.
+
+Question: should i get rid of the Chemistry.py code from the main.py then?
+
+Answer: Yes! If you're creating a separate Chemistry.py module in GitHub, you should remove the chemistry code from main.py so you don't have duplicate definitions.
+
+Here's how to divide your files:
+Chemistry.py
+Keep all the chemistry-related code here:
+- molecular_dictionary
+- parse_formula()
+- calculate_molar_mass()
+- Compound dataclass
+- Reactant dataclass
+- Product dataclass
+- get_total_atoms()
+- is_balanced()
+- find_limiting_reactant()
+- calculate_theoretical_yield()
+main.py
+Keep:
+- Drafter imports
+- Dataclass imports
+- Your from Chemistry import (...) statement
+- ReactionRecord dataclass
+- State dataclass
+- format_atom_counts()
+- All your Drafter routes (index, calculator, calculate, results, etc.)
+- start_server(State())
+
+Question: i got this again,
+Run set -euo pipefail&#x20;
+Drafter v2 deployment build&#x20;
+Repository: spicerc05-cell/Chem-eq-calc&#x20;
+Run: [https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43492926702](https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43492926702)&#x20;
+Entry file: main.py&#x20;
+Command: uvx --from drafter\\>=2\\,\\<3 drafter main.py --compile --output-directory \_site --production --additional-paths Chemistry.py --additional-paths README.md --external-pages dashboard/\ Dashboard --external-pages [https://github.com/spicerc05-cell/Chem-eq-calc\\](https://github.com/spicerc05-cell/Chem-eq-calc\\) Repository&#x20;
+Installed 39 packages in 30ms&#x20;
+Traceback (most recent call last):&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/VmCwl_JXBk9bvK5Z/bin/drafter", line 12, in \<module>&#x20;
+&#x20;   sys.exit(main())&#x20;
+&#x20;            ^^^^^^&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/VmCwl_JXBk9bvK5Z/lib/python3.12/site-packages/drafter/cli.py", line 34, in main&#x20;
+&#x20;   run_path(system.bootstrap.path, run_name="\_\_main\_\_")&#x20;
+&#x20; File "\<frozen runpy>", line 287, in run_path&#x20;
+&#x20; File "\<frozen runpy>", line 98, in \_run_module_code&#x20;
+&#x20; File "\<frozen runpy>", line 88, in \_run_code&#x20;
+&#x20; File "main.py", line 6, in \<module>&#x20;
+&#x20;   from Chemistry import (&#x20;
+ModuleNotFoundError: No module named 'Chemistry'
+
+Answer: Your import statement is fine. The error means Python still cannot find Chemistry.py when the GitHub build runs.
+
+One important clue is that your deployment command already includes:
+--additional-paths Chemistry.py
+
+So the file is being named in the build command, but that option may be for including extra files in the deployed site—not for making Python imports work. We need to check how the build is running before changing your chemistry code.
+
+I checked the current Drafter documentation. It confirms that --additional-paths is for bundling extra files that your app opens (such as CSV or text files), not for Python module imports. 
+GitHub+1
+
+Try this fix in main.py:
+
+1. Add these two lines at the very top of main.py, before from Chemistry import ...:
+import sysfrom pathlib import Pathsys.path.insert(0, str(Path(__file__).resolve().parent))
+
+2. Keep your existing import exactly as it is:
+from Chemistry import (    Reactant,    Product,    is_balanced,    find_limiting_reactant,    calculate_theoretical_yield,    get_total_atoms)
+
+3. Save main.py, commit the change to GitHub, and let Actions run again.
+
+This tells Python to look in the same folder as main.py when searching for Chemistry.py.
+
+If it still fails: send me the contents of your .github/workflows YAML file. I want to check how GitHub is checking out and building your project before suggesting any bigger changes.
+
+Question: I sent over the workflow code
+
+Answer: I found something useful in your workflow. It automatically adds files in the repository's root to Drafter's additional paths, so Chemistry.py is already being included. The issue is likely that the Python process Drafter launches does not have your repository folder on its module search path. Pasted text(2).txt
+
+I also think my previous suggestion using Path(__file__) may not have helped because Drafter runs your app through its own bootstrap process.
+
+Let's fix the workflow directly.
+1. Open your GitHub Actions workflow
+Find the section near the bottom of Build Drafter v2 site that looks like this:
+          {
+            echo "Drafter v2 deployment build"
+            echo "Repository: ${{ github.repository }}"
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Entry file: $MAIN_FILE"
+            echo
+            printf 'Command:'
+            printf ' %q' "${DRAFTER_RUN[@]}"
+            echo
+            echo
+            "${DRAFTER_RUN[@]}"
+          } 2>&1 | tee "$BUILD_LOG"
+
+2. Replace only this line
+Find:
+"${DRAFTER_RUN[@]}"
+
+Replace it with:
+PYTHONPATH="$GITHUB_WORKSPACE${PYTHONPATH:+:$PYTHONPATH}" "${DRAFTER_RUN[@]}"
+
+This explicitly tells Python to search your GitHub repository folder when importing modules.
+3. Save and deploy again
+Commit the workflow change, then run the GitHub Actions workflow again.
+
+Keep your Chemistry.py file and your existing import statement in main.py.
+
+If it still fails, send me the new error. We're narrowing this down to the deployment environment now, rather than your chemistry calculations.
+
+Question: i dont think im supposed to change the workflow code, is there a way to get the code to find the Chemistry module without changing the workflow code/
+
+Answer: Yes! And I actually think that's a better approach for your class project. You shouldn't have to modify the GitHub workflow just to make your chemistry calculations work.
+
+The simplest solution is to put the chemistry code directly into main.py instead of importing it from Chemistry.py.
+
+Python can run everything from one file, and Drafter will not need to locate a separate module.
+Here's what to do
+1. Open Chemistry.py in Thonny.
+2. Copy the chemistry-related code:
+   - molecular_dictionary
+   - parse_formula()
+   - calculate_molar_mass()
+   - Compound
+   - Reactant
+   - Product
+   - get_total_atoms()
+   - is_balanced()
+   - find_limiting_reactant()
+   - calculate_theoretical_yield()
+3. Open main.py.
+4. Paste that code near the top, after your imports but before your ReactionRecord and State dataclasses.
+5. Remove the from Chemistry import (...) statement.
+6. Save and commit main.py to GitHub.
+You can leave Chemistry.py in your repository; it just won't be used.
+Why I recommend this
+- No changes to your GitHub workflow.
+- No separate module imports to troubleshoot.
+- Your chemistry calculations still work.
+- Your application can still meet the project requirements.
+
+Question: I got this error this time,
+Run set -euo pipefail&#x20;
+Drafter v2 deployment build&#x20;
+Repository: spicerc05-cell/Chem-eq-calc&#x20;
+Run: [https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43495656913](https://github.com/spicerc05-cell/Chem-eq-calc/actions/runs/43495656913)&#x20;
+Entry file: main.py&#x20;
+Command: uvx --from drafter\\>=2\\,\\<3 drafter main.py --compile --output-directory \_site --production --additional-paths Chemistry.py --additional-paths README.md --external-pages dashboard/\ Dashboard --external-pages [https://github.com/spicerc05-cell/Chem-eq-calc\\](https://github.com/spicerc05-cell/Chem-eq-calc\\) Repository&#x20;
+Installed 39 packages in 30ms&#x20;
+Traceback (most recent call last):&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/v02RmDTBcx1xkJ6M/bin/drafter", line 12, in \<module>&#x20;
+&#x20;   sys.exit(main())&#x20;
+&#x20;            ^^^^^^&#x20;
+&#x20; File "/home/runner/work/\_temp/setup-uv-cache/archive-v0/v02RmDTBcx1xkJ6M/lib/python3.12/site-packages/drafter/cli.py", line 34, in main&#x20;
+&#x20;   run_path(system.bootstrap.path, run_name="\_\_main\_\_")&#x20;
+&#x20; File "\<frozen runpy>", line 287, in run_path&#x20;
+&#x20; File "\<frozen runpy>", line 98, in \_run_module_code&#x20;
+&#x20; File "\<frozen runpy>", line 88, in \_run_code&#x20;
+&#x20; File "main.py", line 7, in \<module>&#x20;
+&#x20;   set_site_information(&#x20;
+TypeError: set_site_information() missing 2 required positional arguments: 'planning' and 'links'
+
+Answer: Good news: the deployment has moved past the previous Chemistry import error. The new error is specifically about the arguments to set_site_information().
+
+Your current call is missing two required arguments: planning and links.
+Fix in main.py
+Replace your existing set_site_information(...) call with this:
+set_site_information(    author="Connor Spicer",    description="Calculates limiting reactant, actual yield, and theoretical yield from balanced equation",    sources="Drafter docs",    planning="A CS1 final project for calculating chemical reaction yields.",    links="https://github.com/spicerc05-cell/Chem-eq-calc")
+
+Keep the rest of your website settings unchanged:
+hide_debug_information()set_website_title("Calculations for balanced Chem equations")set_site_information(    author="Connor Spicer",    description="Calculates limiting reactant, actual yield, and theoretical yield from balanced equation",    sources="Drafter docs",    planning="A CS1 final project for calculating chemical reaction yields.",    links="https://github.com/spicerc05-cell/Chem-eq-calc")set_website_framed(False)
+
+Then
+1. Save main.py.
+2. Commit and push the change to GitHub.
+3. Let GitHub Actions run again.
