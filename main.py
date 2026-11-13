@@ -7,7 +7,9 @@ set_website_title("Calculations for balanced Chem equations")
 set_site_information(
     author="Connor Spicer",
     description="Calculates limiting reactant, actual yield, and theoretical yield from balanced equation",
-    sources="Drafter docs"
+    sources="Drafter docs",
+    planning="A CS1 final project for calculating chemical reaction yields.",
+    links="https://github.com/spicerc05-cell/Chem-eq-calc"
 )
 set_website_framed(False)
 
