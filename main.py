@@ -11,10 +11,6 @@ from Chemistry import (
     calculate_theoretical_yield,
     get_total_atoms
 )
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 hide_debug_information()
 set_website_title("Calculations for balanced Chem equations")
