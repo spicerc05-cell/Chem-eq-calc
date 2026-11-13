@@ -1,16 +1,6 @@
-from bakery import assert_equal
-from dataclasses import dataclass
 from drafter import *
 from dataclasses import dataclass, field
-
-from Chemistry import (
-    Reactant,
-    Product,
-    is_balanced,
-    find_limiting_reactant,
-    calculate_theoretical_yield,
-    get_total_atoms
-)
+import re
 
 hide_debug_information()
 set_website_title("Calculations for balanced Chem equations")
@@ -20,11 +10,6 @@ set_site_information(
     sources="Drafter docs"
 )
 set_website_framed(False)
-
-
-from dataclasses import dataclass, field
-import re
-
 
 # Molecular weights of elements (g/mol)
 molecular_dictionary = {
