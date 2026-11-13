@@ -1,4 +1,4 @@
-""" Question: i am using this code in replacemnt of chempy to be compatible with drafter,
+### Question: i am using this code in replacemnt of chempy to be compatible with drafter,
 import re
 
 molecular_dictionary ={
@@ -857,4 +857,4 @@ hide_debug_information()set_website_title("Calculations for balanced Chem equati
 Then
 1. Save main.py.
 2. Commit and push the change to GitHub.
-3. Let GitHub Actions run again. """
+3. Let GitHub Actions run again. ###
