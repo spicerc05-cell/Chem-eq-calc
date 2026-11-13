@@ -1,5 +1,4 @@
 from bakery import assert_equal
-from drafter import *
 from dataclasses import dataclass
 from drafter import *
 from dataclasses import dataclass, field
@@ -18,7 +17,7 @@ hide_debug_information()
 set_website_title("Calculations for balanced Chem equations")
 set_site_information(
     author="Connor Spicer",
-    description="Calculates limiting reactant, actual yield, and theoretical yield from balanced equation"
+    description="Calculates limiting reactant, actual yield, and theoretical yield from balanced equation",
     sources="Drafter docs"
 )
 set_website_framed(False)
